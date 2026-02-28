@@ -1,98 +1,51 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { AuthUser } from '../types';
+import { AuthScreen } from '../components/auth/AuthScreen';
+import { CustomerApp } from '../components/customer/CustomerApp';
+import { AdminApp } from '../components/admin/AdminApp';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+/**
+ * NexusStore - Main Entry Point
+ * 
+ * File Structure:
+ * ├── types/index.ts                          ← All TypeScript interfaces
+ * ├── constants/
+ * │   ├── theme.ts                            ← Colors, dimensions, constants
+ * │   ├── styles.ts                           ← Shared StyleSheet
+ * │   └── data.ts                             ← Mock products, orders, users, chats
+ * ├── components/
+ * │   ├── ui/
+ * │   │   ├── SharedComponents.tsx            ← Btn, Input, Card, Tag, Stars, Toast
+ * │   │   ├── ProductCard.tsx                 ← Reusable product card
+ * │   │   └── ChatWidget.tsx                  ← Customer chat modal
+ * │   ├── auth/
+ * │   │   └── AuthScreen.tsx                  ← Login / Register screen
+ * │   ├── customer/
+ * │   │   └── CustomerApp.tsx                 ← Customer shell + navigation
+ * │   └── admin/
+ * │       └── AdminApp.tsx                    ← Admin shell + navigation
+ * └── screens/
+ *     ├── customer/
+ *     │   ├── HomeScreen.tsx                  ← Hero, featured, categories
+ *     │   ├── ShopScreen.tsx                  ← Search, filter, product grid
+ *     │   ├── ProductDetailScreen.tsx         ← Product info, reviews
+ *     │   ├── CheckoutScreen.tsx              ← 3-step checkout flow
+ *     │   └── OtherScreens.tsx                ← Cart, Wishlist, Orders, Profile
+ *     └── admin/
+ *         ├── AdminDashboard.tsx              ← Metrics, chart, quick actions
+ *         ├── AdminProductsScreen.tsx         ← Product CRUD
+ *         ├── AdminChatsScreen.tsx            ← Chat center
+ *         └── AdminOtherScreens.tsx           ← Orders, Users, Settings
+ */
 
-export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+export default function App() {
+    const [user, setUser] = useState<AuthUser | null>(null);
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
+    return (
+        <>
+            {!user && <AuthScreen onLogin={setUser} />}
+            {user?.role === 'customer' && <CustomerApp user={user} onLogout={() => setUser(null)} />}
+            {user?.role === 'admin' && <AdminApp user={user} onLogout={() => setUser(null)} />}
+        </>
+    );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
